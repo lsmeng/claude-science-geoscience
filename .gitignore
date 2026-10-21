@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+data/
+site/
+comcat_data/
+fdsn_data/
+talk/
+.DS_Store
