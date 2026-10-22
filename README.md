@@ -51,7 +51,7 @@ Steps:
 
 3. Settings > Skills: the folders in `skills/` appear as drafts if copied to the org's `skills/` folder (`~/.claude-science/orgs/<org>/skills/`); open each and press Publish. Alternatively add them from GitHub.
 
-4. Settings > Network > Allowed domains: add `service.earthscope.org`, `service.scedc.caltech.edu`, `service.ncedc.org`, `geofon.gfz.de`, `earthquake.usgs.gov`, `www.isc.ac.uk`, `hifis-storage.desy.de`. The sandbox code (skill scripts, PhaseNet weight download) can only reach listed hosts; the connectors themselves run outside that list. NIED has no ObsPy short name; pass its FDSN base URL as `datacenter` if it offers open access.
+4. Settings > Network > Allowed domains: add `service.earthscope.org` (IRIS/EarthScope data and Syngine), `service.scedc.caltech.edu`, `service.ncedc.org`, `geofon.gfz.de`, `earthquake.usgs.gov`, `www.isc.ac.uk`, `hifis-storage.desy.de` (SeisBench downloads the PhaseNet weights from there), and for the two catalog connectors `www.ldeo.columbia.edu` (GCMT) and `geodesy.unr.edu` (GNSS). **The allowlist applies to the connectors as well as to code the agent runs**: a connector whose host is not listed returns nothing (the `gcmt` connector returned an empty result for July 2019 until the host was allowed; the app then asked for permission in the chat). NIED has no ObsPy short name; pass its FDSN base URL as `datacenter` if it offers open access.
 
 5. After editing a connector file, stop its process (`pkill -f connectors/<name>/server.py`) and toggle the connector off and on in Settings.
 

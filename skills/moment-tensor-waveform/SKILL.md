@@ -74,3 +74,10 @@ pre-event noise window was full of aftershock coda.
   period (2 s for `ak135f_2s`); the default band is much longer.
 - Syngine is a public service: the skill makes 6 requests per station with a short pause;
   use `--nsta` modestly.
+
+## Using it in Claude Science
+
+The agent has to copy the script out of the skill bundle before it can run it (in the app,
+`host.skills.read("moment-tensor-waveform", "scripts/mt_invert.py")` from the `repl` tool, then write it to the workspace and
+run it with the Python environment that has ObsPy). A shell `find` for the script can hang;
+read it through the skill instead.

@@ -55,3 +55,10 @@ comparison with the reference) and `location.png` (map with bootstrap cloud, res
   NonLinLoc or HYPOINVERSE with station corrections, would be better.
 - **Auto mode assumes one event in the window.** Overlapping events need an associator.
 - Needs P and S at four or more stations (at least 8 picks).
+
+## Using it in Claude Science
+
+The agent has to copy the script out of the skill bundle before it can run it (in the app,
+`host.skills.read("locate-event", "scripts/locate_event.py")` from the `repl` tool, then write it to the workspace and
+run it with the Python environment that has ObsPy). A shell `find` for the script can hang;
+read it through the skill instead.
