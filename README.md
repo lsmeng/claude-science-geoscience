@@ -74,11 +74,16 @@ Tested on macOS, and inside Claude Science 0.1.54 (project "Seismology demo", So
 | comcat | In Claude Science: found the mainshock (ci38457511, 2019-07-06T03:19:53Z, Mw 7.1), counted 17,513 events within 60 km (4-14 Jul 2019), fetched them all |
 | fdsnws | In Claude Science: `get_waveforms` for CI.CLC from SCEDC returned the miniSEED inline; identical to a direct ObsPy fetch (3 traces, 40 Hz, 4,801 samples, SHA-256 equal). `get_events` and `get_stations` also work outside the app |
 | isc | Tools list in the app. **Live query not verified:** on 2026-10-21 the ISC server answered every query with an internal error ("unable to open ... query line 165") or HTTP 429. The connector reports both clearly. Re-test later |
+| syngine | In Claude Science: synthetic seismograms for the ComCat and the inverted mechanism at CI.JRC2, returned inline. Outside the app: any moment tensor or double couple, any receiver; a synthetic record section for a Mw 7.0 tensor at 33 distances, 10 to 170 degrees |
+| gcmt, taup, gnss | Tested outside the app. `gcmt` was used inside the app once the host `www.ldeo.columbia.edu` was allowed (it returned the Ridgecrest Mw 7.03 tensor); `taup` and `gnss` not yet used inside the app |
+| moment-tensor-waveform | In the app, on the Mw 4.9 aftershock (11 stations, 0.04 to 0.1 Hz): Mw 4.82 vs ComCat 4.90, nodal planes [54,88,-6] [144,84,-178], Kagan angle 8.9 deg, variance reduction 0.83. On the Mac the Mw 5.37 aftershock gave Kagan 2.9 deg. The Mw 5.5 event inside the active sequence failed the signal-to-noise screen |
+| locate-event | In the app, auto mode on the Mw 4.9 aftershock: 15 stations, 29 picks, RMS 0.22 s; 0.99 km from ComCat horizontally, origin time 0.73 s early, depth 21.7 km vs 9.5 km (unresolved: nearest station 27 km, 1-D iasp91) |
+| Global waveforms (honest) | Observed IU long-period records against Syngine synthetics for the Mw 7.0 Ridgecrest GCMT tensor were a poor fit (12 stations). P timing is within about 3 s, but amplitudes are 2 to 8 times too large (point source, no source time function) and observed surface waves are 40 s or more late (1-D Earth). Not a result to show as a fit |
 | waveform-download | Bulk download of HV.UWE and HV.SBL works (Mac). Not exercised inside the app |
 | phase-picking-ml | In the app, a clean example: the Mw 4.9 aftershock of 2019-07-12 (ci38548295) at CI.JRC2, 43 km. PhaseNet (SeisBench 0.12.6, "original" weights) gave P at +7.49 s (p = 0.92) and S at +13.03 s (p = 0.82), within 0.17 s of iasp91; S-P 5.54 s observed vs 5.55 s predicted. A poor example, for contrast: the Mw 7.1 mainshock at CI.CLC (5 km) gave a P at +1.04 s but no S, and picks inside the coda are spurious (S arrives within the P coda and the record is dominated by the mainshock). Pick close-in, large events with care |
 | catalog-statistics | In the app: Mc 1.6, b = 0.661 ± 0.006 (N = 8,690), the same as on the Mac. The app's own checks showed b is not stable: 0.51 to 1.12 for Mc 1.0 to 3.4, b-positive gives 0.905, and the other Mc estimators give 3.4 to 3.6. Treat the headline b as a demo number |
 
-Not tested: a clean install on another machine, `waveform-download` and `phase-picking-classic` inside the app, and `isc` against a working ISC server.
+Not tested: a clean install on another machine, `waveform-download` and `phase-picking-classic` inside the app, `taup` and `gnss` inside the app, and `isc` against a working ISC server.
 
 ## Notes
 
