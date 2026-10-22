@@ -27,6 +27,15 @@ CALLS = {
     "fdsnws": ("get_events", dict(
         starttime="2019-07-06T03:00:00", endtime="2019-07-06T04:00:00", minmagnitude=6.5,
         datacenter="USGS")),
+    "syngine": ("syngine_waveforms", dict(
+        sourcelatitude=35.6368, sourcelongitude=-117.5862, sourcedepth_km=9.48,
+        origintime="2019-07-12T13:11:37.990", receiverlatitude=35.98249, receiverlongitude=-117.80885,
+        double_couple="320,85,-170,2.5e16", starttime="2019-07-12T13:11:27", endtime="2019-07-12T13:12:57",
+        inline=True)),
+    "gcmt": ("gcmt_search", dict(
+        starttime="2019-07-06T00:00:00", endtime="2019-07-07T00:00:00", minmagnitude=6.5)),
+    "taup": ("tt_compute", dict(distance_deg=0.39, depth_km=9.48)),
+    "gnss": ("gnss_station_info", dict(station="P595")),
 }
 
 
@@ -42,8 +51,9 @@ async def run(name):
             try:
                 d = json.loads(text)
                 ev = d.get("events") or []
-                summary = f"{d.get('count')} event(s)" + (
-                    f", first: {ev[0].get('time')} M{ev[0].get('mag')}" if ev else "")
+                summary = f"{d.get('count')} event(s)" if "events" in d else text[:140].replace("\n", " ")
+                if ev:
+                    summary += f", first: {ev[0].get('time')} M{ev[0].get('mag')}"
             except Exception:
                 summary = text[:200]
             return tools, tool, summary, bool(res.isError)

@@ -1,6 +1,6 @@
 # Seismology connectors and skills for Claude Science
 
-Three data connectors (MCP servers) and four skills for earthquake data. Early version, built to show what Earth-science support in Claude Science could look like.
+Seven data and simulation connectors (MCP servers) and six skills for earthquake data. Early version, built to show what Earth-science support in Claude Science could look like.
 
 ## What is in it
 
@@ -9,9 +9,15 @@ Three data connectors (MCP servers) and four skills for earthquake data. Early v
 | `connectors/fdsnws` | Events, stations and waveforms from any FDSN data center (IRIS/EarthScope, SCEDC, NCEDC, GFZ/GEOFON, ORFEUS, USGS, ... or any base URL). Waveforms are saved as miniSEED and a manifest is returned. | mcp, obspy |
 | `connectors/comcat` | USGS ComCat catalog: count, search (paged, large results saved to a file), one event, event products (moment tensor, ShakeMap, ...). | mcp |
 | `connectors/isc` | ISC Bulletin search and per-event multi-agency origins and magnitudes. | mcp, obspy |
+| `connectors/syngine` | Synthetic seismograms for any moment tensor or double couple, anywhere on the globe (EarthScope Syngine: AxiSEM in 1-D Earth models, 2 s and longer). The quick "simulator". | mcp, obspy |
+| `connectors/gcmt` | Global CMT moment-tensor catalog search. | mcp, obspy |
+| `connectors/taup` | iasp91, ak135, prem travel times, ray parameters, take-off angles (TauP). | mcp, obspy |
+| `connectors/gnss` | Nevada Geodetic Laboratory GNSS station lookup and daily time series. | mcp |
 | `skills/waveform-download` | Bulk or regional (MassDownloader) waveform download with StationXML and a gap report. | obspy |
 | `skills/phase-picking-ml` | PhaseNet / EQTransformer P and S picks (SeisBench). Falls back to STA/LTA if torch is absent, and tags every pick with the backend. | obspy, seisbench, torch |
 | `skills/phase-picking-classic` | STA/LTA + AIC picker (used as the fallback above). | obspy |
+| `skills/moment-tensor-waveform` | Regional moment-tensor inversion from waveforms with Syngine Green's functions; Mw, nodal planes, fit per station, Kagan angle to a reference. | obspy, numpy, matplotlib |
+| `skills/locate-event` | Single-event location from P and S picks (iasp91 grid search, outlier rejection, bootstrap), auto mode with PhaseNet. | obspy, numpy (+ seisbench for auto) |
 | `skills/catalog-statistics` | Mc, Gutenberg-Richter b-value (Aki-Utsu maximum likelihood, Shi-Bolt error), Mc cross-checks, b-positive. | numpy, pandas |
 
 ## Install in Claude Science (tested 2026-10-21, v0.1.54)
