@@ -88,6 +88,23 @@ def list_models() -> str:
     return json.dumps({"models": _MODELS, "default": "iasp91"}, indent=2)
 
 
+def _travel(m, depth_km, distance_deg, phases):
+    """get_travel_times; if nothing comes back and 'P'/'S' were asked for, also try the
+    local branch names 'p'/'s' (TauP calls the direct upgoing/turning phase p/s when the
+    source is in the crust at short distance). Returns (arrivals, phases_used, note)."""
+    arrivals = m.get_travel_times(source_depth_in_km=depth_km,
+                                  distance_in_degree=distance_deg, phase_list=phases)
+    note = None
+    if not arrivals and any(x in ("P", "S") for x in phases):
+        extra = [x for x in ("p", "s") if x not in phases]
+        phases = phases + extra
+        arrivals = m.get_travel_times(source_depth_in_km=depth_km,
+                                      distance_in_degree=distance_deg, phase_list=phases)
+        note = ("no arrivals for the requested phases; added local phases p,s "
+                "(crustal source at short distance)")
+    return arrivals, phases, note
+
+
 @mcp.tool()
 def tt_compute(
     distance_deg: float,
@@ -97,7 +114,7 @@ def tt_compute(
 ) -> str:
     """Theoretical travel times for phases at a given distance & source depth.
 
-    `phase_list` is comma-separated TauP phase names (e.g. 'P,S', 'P,pP,PcP,PKIKP').
+    `phase_list` is comma-separated TauP phase names (e.g. 'p,s,P,S', 'P,pP,PcP,PKIKP'; use lower-case p,s for a crustal source within ~1-2 deg).
     `distance_deg` great-circle degrees; `depth_km` positive down. Returns JSON
     {model, distance_deg, depth_km, phase_list, n, arrivals:[{phase, time_s,
     ray_param_s_per_deg, takeoff_angle_deg, incident_angle_deg, purist_distance_deg}]}.
@@ -105,21 +122,20 @@ def tt_compute(
     """
     phases = [p.strip() for p in phase_list.split(",") if p.strip()]
     m = _get_model(model)
-    arrivals = m.get_travel_times(source_depth_in_km=depth_km,
-                                  distance_in_degree=distance_deg,
-                                  phase_list=phases)
+    arrivals, phases, note = _travel(m, depth_km, distance_deg, phases)
     arrs = sorted((_arrival_dict(a) for a in arrivals), key=lambda d: d["time_s"])
-    return json.dumps({
-        "model": model, "distance_deg": distance_deg, "depth_km": depth_km,
-        "phase_list": phases, "n": len(arrs), "arrivals": arrs,
-    }, indent=2)
+    out = {"model": model, "distance_deg": distance_deg, "depth_km": depth_km,
+           "phase_list": phases, "n": len(arrs), "arrivals": arrs}
+    if note:
+        out["note"] = note
+    return json.dumps(out, indent=2)
 
 
 @mcp.tool()
 def takeoff_angle(
     distance_deg: float,
     depth_km: float,
-    phase_list: str = "P",
+    phase_list: str = "p,s,P,S",
     model: str = "iasp91",
 ) -> str:
     """Take-off (and incidence) angles for phases — for focal-mechanism / first-motion work.
@@ -131,9 +147,7 @@ def takeoff_angle(
     """
     phases = [p.strip() for p in phase_list.split(",") if p.strip()]
     m = _get_model(model)
-    arrivals = m.get_travel_times(source_depth_in_km=depth_km,
-                                  distance_in_degree=distance_deg,
-                                  phase_list=phases)
+    arrivals, phases, note = _travel(m, depth_km, distance_deg, phases)
     out = [{
         "phase": a.name,
         "takeoff_angle_deg": round(a.takeoff_angle, 4),
@@ -141,10 +155,11 @@ def takeoff_angle(
         "ray_param_s_per_deg": round(a.ray_param_sec_degree, 5),
         "time_s": round(a.time, 4),
     } for a in arrivals]
-    return json.dumps({
-        "model": model, "distance_deg": distance_deg, "depth_km": depth_km,
-        "arrivals": out,
-    }, indent=2)
+    res = {"model": model, "distance_deg": distance_deg, "depth_km": depth_km,
+           "arrivals": out}
+    if note:
+        res["note"] = note
+    return json.dumps(res, indent=2)
 
 
 if __name__ == "__main__":

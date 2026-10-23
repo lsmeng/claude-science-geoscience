@@ -150,7 +150,8 @@ def _stats_mm(vals_m):
 
 
 @mcp.tool()
-def gnss_get_timeseries(station: str, inline: bool = False) -> str:
+def gnss_get_timeseries(station: str, inline: bool = False,
+                        start: str = "", end: str = "") -> str:
     """Fetch + parse one NGL station's daily .tenv3 series (IGS20 frame).
 
     `station` is a 4-char NGL id (case-insensitive, e.g. 'P056', 'MKEA', 'AB06').
@@ -161,6 +162,10 @@ def gnss_get_timeseries(station: str, inline: bool = False) -> str:
     Returns JSON {station, url, handle, n_epochs, date_start, date_end, span_days,
     east/north/up: {ptp_mm, std_mm, first_mm, last_mm, reference_mean_m}}.
     Hand `handle` to a plotting/analysis step for the full arrays.
+    For a time window (e.g. around an earthquake) pass `start` and `end` (YYYY-MM-DD):
+    the daily rows in that window (date, east, north, up, sigmas in mm) come back
+    inline as `window`, so no file access is needed (the Claude Science sandbox
+    cannot read the handle file).
     """
     sta = station.strip().upper()
     url = TENV3_URL.format(sta=sta)
@@ -229,6 +234,13 @@ def gnss_get_timeseries(station: str, inline: bool = False) -> str:
     }
     if write_error:
         out["write_error"] = write_error
+    if start or end:
+        lo, hi = start or "0000-01-01", end or "9999-12-31"
+        out["window"] = {"start": lo, "end": hi, "columns": ["date", "east_mm", "north_mm", "up_mm",
+                         "sig_e_mm", "sig_n_mm", "sig_u_mm"], "rows": [
+            [d[:10], full["east_mm"][i], full["north_mm"][i], full["up_mm"][i],
+             full["sig_east_mm"][i], full["sig_north_mm"][i], full["sig_up_mm"][i]]
+            for i, d in enumerate(dates) if lo <= d[:10] <= hi]}
     if inline or handle is None:
         out["data"] = {k: full[k] for k in ("dates", "decimal_year", "east_mm", "north_mm", "up_mm")}
     return json.dumps(out, indent=2)
